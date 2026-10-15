@@ -5,11 +5,11 @@ Licensed data (DataForSEO's Google SERP, Google Ads and ranking data) plus Googl
 
 | Tool | What it returns | Price |
 |---|---|---|
-| [Google Search Results API](https://apify.com/rowfeed/google-serp-api) | Google results for any query, country, language and device: organic, ads, featured snippet, People Also Ask, AI overview, local pack, and your domain's rank | $4 per 1,000 searches |
-| [Google News Monitor](https://apify.com/rowfeed/google-news-monitor) | Google News articles for any query or topic in any edition: headline, source, time and publisher URL; monitor mode returns only new articles | $1 per 1,000 articles |
-| [Keyword Search Volume](https://apify.com/rowfeed/keyword-search-volume) | Monthly Google search volume, CPC, competition and 12-month trend for a keyword list, or keyword ideas from seed words | $3 per 1,000 keywords + $0.12 per lookup of up to 1,000 |
-| [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup ($0.04 from 30 Oct 2026) |
-| [Google Trends Explorer](https://apify.com/rowfeed/google-trends-explorer) | Google Trends interest over time for up to 5 compared keywords, with average, peak, latest value and trend | $0.003 per keyword + $0.02 per lookup |
+| [Google Search Results API](https://apify.com/rowfeed/google-serp-api) | Google results for any query, country, language and device: organic, ads, featured snippet, People Also Ask, AI overview, local pack, and your domain's rank | $3 per 1,000 searches |
+| [Google News Monitor](https://apify.com/rowfeed/google-news-monitor) | Google News articles for any query or topic in any edition: headline, source, time and publisher URL; monitor mode returns only new articles | $1 per 1,000 articles ($2 from 30 Oct 2026) |
+| [Keyword Search Volume](https://apify.com/rowfeed/keyword-search-volume) | Monthly Google search volume, CPC, competition and 12-month trend for a keyword list, or keyword ideas from seed words | $3 per 1,000 keywords + $0.04 per lookup of up to 100 ($0.16 for a batch of up to 1,000) |
+| [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup |
+| [Google Trends Explorer](https://apify.com/rowfeed/google-trends-explorer) | Google Trends interest over time for up to 5 compared keywords, with average, peak, latest value and trend | $0.001 per keyword + $0.02 per lookup of up to 5 |
 
 Failed lookups are never charged. Each run also costs $0.001 to start.
 
