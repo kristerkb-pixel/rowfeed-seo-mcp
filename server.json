@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.kristerkb-pixel/rowfeed-seo-mcp",
+  "title": "Rowfeed SEO Data",
+  "description": "Google search results, Google News, keyword volume, competitor keywords and Google Trends.",
+  "repository": {
+    "url": "https://github.com/kristerkb-pixel/rowfeed-seo-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://apify.com/rowfeed",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Your Apify API token as 'Bearer <token>' (free account at apify.com). Clients with OAuth support can sign in instead.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
