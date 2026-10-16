@@ -5,7 +5,7 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 
 | Tool | What it returns | Price |
 |---|---|---|
-| [AI Search Visibility Tracker](https://apify.com/rowfeed/ai-search-visibility-tracker) | Asks ChatGPT and Google AI Mode your prompts: is your brand mentioned, its position versus competitors, cited sources and the full answer | $0.03 per answer |
+| [AI Search Visibility Tracker](https://apify.com/rowfeed/ai-search-visibility-tracker) | Asks ChatGPT and Google AI Mode your prompts: is your brand mentioned, its position versus competitors, cited sources and the full answer | $0.04 per answer ($0.03 until 31 Oct 2026) |
 | [Google Search Results API](https://apify.com/rowfeed/google-serp-api) | Google results for any query, country, language and device: organic, ads, featured snippet, People Also Ask, AI overview, local pack, and your domain's rank | $3 per 1,000 searches |
 | [Google News Monitor](https://apify.com/rowfeed/google-news-monitor) | Google News articles for any query or topic in any edition: headline, source, time and publisher URL; monitor mode returns only new articles | $1 per 1,000 articles ($2 from 30 Oct 2026) |
 | [Amazon Product Tracker](https://apify.com/rowfeed/amazon-product-tracker) | Amazon search results (rank, price, rating, ratings count, badges, sponsored) and product details per ASIN (price, discount, Best Sellers Rank) on any marketplace | $1 per 1,000 products + $0.005 per ASIN detail |
