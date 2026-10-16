@@ -1,7 +1,7 @@
-# Rowfeed Search & Market Data – MCP tools for Google search, news, Amazon, company jobs, keyword volume and Google Trends
+# Rowfeed Search & Market Data – MCP tools for Google search, news, Amazon, App Store, company jobs, keyword volume and Google Trends
 
-Eight pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
-Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds and companies' public job boards. No blocked runs.
+Nine pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
+Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds, Apple's public App Store feeds and companies' public job boards. No blocked runs.
 
 | Tool | What it returns | Price |
 |---|---|---|
@@ -9,6 +9,7 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 | [Google News Monitor](https://apify.com/rowfeed/google-news-monitor) | Google News articles for any query or topic in any edition: headline, source, time and publisher URL; monitor mode returns only new articles | $1 per 1,000 articles ($2 from 30 Oct 2026) |
 | [Amazon Product Tracker](https://apify.com/rowfeed/amazon-product-tracker) | Amazon search results (rank, price, rating, ratings count, badges, sponsored) and product details per ASIN (price, discount, Best Sellers Rank) on any marketplace | $1 per 1,000 products + $0.005 per ASIN detail |
 | [Google Shopping Prices](https://apify.com/rowfeed/google-shopping-prices) | Google Shopping results for any product search: price, old price and discount, seller, rating, delivery and rank, with seller tracking | $1 per 1,000 products + $0.002 per search |
+| [Apple App Store Scraper](https://apify.com/rowfeed/apple-app-store-scraper) | App Store top charts (free, paid, grossing, iPad, new) for any country and category, App Store search and app details: rank, developer, price, rating, ratings count, version | $1 per 1,000 apps |
 | [Career Site Jobs Scraper](https://apify.com/rowfeed/career-site-jobs-scraper) | Open jobs from company career sites on Greenhouse, Lever, Ashby, Workday and SmartRecruiters, with filters and a monitor mode for new jobs | $1 per 1,000 jobs |
 | [Keyword Search Volume](https://apify.com/rowfeed/keyword-search-volume) | Monthly Google search volume, CPC, competition and 12-month trend for a keyword list, or keyword ideas from seed words | $3 per 1,000 keywords + $0.04 per lookup of up to 100 ($0.16 for a batch of up to 1,000) |
 | [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup |
@@ -21,7 +22,7 @@ Failed lookups are never charged. Each run also costs $0.001 to start.
 Server URL:
 
 ```
-https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
+https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
 ```
 
 Authenticate with your own Apify API token (free account at [apify.com](https://apify.com)), either via OAuth in clients that support it, or as a header:
@@ -30,7 +31,7 @@ Authenticate with your own Apify API token (free account at [apify.com](https://
 {
   "mcpServers": {
     "rowfeed-data": {
-      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
       "headers": { "Authorization": "Bearer <YOUR_APIFY_TOKEN>" }
     }
   }

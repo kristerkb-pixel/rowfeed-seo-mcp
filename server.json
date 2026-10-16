@@ -2,17 +2,17 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.kristerkb-pixel/rowfeed-seo-mcp",
   "title": "Rowfeed Search & Market Data",
-  "description": "Google search, News and Shopping, Amazon products, company jobs, keyword volume and Google Trends.",
+  "description": "Google search, News and Shopping, Amazon, App Store, company jobs, keyword volume and Google Trends.",
   "repository": {
     "url": "https://github.com/kristerkb-pixel/rowfeed-seo-mcp",
     "source": "github"
   },
   "websiteUrl": "https://apify.com/rowfeed",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
       "headers": [
         {
           "name": "Authorization",
