@@ -1,6 +1,6 @@
-# Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings, news, Amazon, App Store, company jobs, keyword volume and Google Trends
+# Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings, Google Hotels prices, news, Amazon, App Store, company jobs, keyword volume and Google Trends
 
-Thirteen pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
+Fourteen pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
 Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds, Apple's public App Store feeds and companies' public job boards. No blocked runs.
 
 | Tool | What it returns | Price |
@@ -14,6 +14,7 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 | [Google Jobs Scraper](https://apify.com/rowfeed/google-jobs-api) | Google Jobs listings for any search and location: title, employer, location, salary, job type, posted date and apply link, with date and job-type filters and a monitor mode | $2 per 1,000 jobs + $0.002 per 10 jobs requested |
 | [Google Ads Transparency & Ad Library](https://apify.com/rowfeed/google-ads-transparency) | Every ad a domain or advertiser runs on Google Search, YouTube, Play, Maps and Shopping from the Google Ads Transparency Center: advertiser, format, preview image, first and last shown; advertiser search by name and a monitor mode for new ads | $1 per 1,000 ads + $0.001 per 40 ads requested |
 | [Local Rank Tracker](https://apify.com/rowfeed/google-maps-rank-tracker) | Google Maps rank of a business at every point of a geo-grid around it (3x3 to 9x9): rank per point, the top 3 there, average rank, top-3 share and the competitors that beat it | $0.004 per grid point |
+| [Google Hotels API](https://apify.com/rowfeed/google-hotels-api) | Google Hotels prices for any city and dates: price per night, stars, rating, reviews and discounts, plus each hotel's prices on every booking site (Booking.com, Expedia, the official site) | $2 per 1,000 hotels + $0.004 per hotel for booking-site prices |
 | [Career Site Jobs Scraper](https://apify.com/rowfeed/career-site-jobs-scraper) | Open jobs from company career sites on Greenhouse, Lever, Ashby, Workday and SmartRecruiters, with filters and a monitor mode for new jobs | $1 per 1,000 jobs |
 | [Keyword Search Volume](https://apify.com/rowfeed/keyword-search-volume) | Monthly Google search volume, CPC, competition and 12-month trend for a keyword list, or keyword ideas from seed words | $3 per 1,000 keywords + $0.04 per lookup of up to 100 ($0.16 for a batch of up to 1,000) |
 | [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup |
@@ -26,7 +27,7 @@ Failed lookups are never charged. Each run also costs $0.001 to start.
 Server URL:
 
 ```
-https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
+https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-hotels-api,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
 ```
 
 Authenticate with your own Apify API token (free account at [apify.com](https://apify.com)), either via OAuth in clients that support it, or as a header:
@@ -35,7 +36,7 @@ Authenticate with your own Apify API token (free account at [apify.com](https://
 {
   "mcpServers": {
     "rowfeed-data": {
-      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-hotels-api,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
       "headers": { "Authorization": "Bearer <YOUR_APIFY_TOKEN>" }
     }
   }
