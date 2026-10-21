@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.kristerkb-pixel/rowfeed-seo-mcp",
   "title": "Rowfeed Search & Market Data",
-  "description": "ChatGPT visibility, SERP, Ads, Maps ranks, Hotels, site traffic, News, Shopping, Amazon, jobs, Trends.",
+  "description": "ChatGPT visibility, SERP, Ads, Maps ranks, Hotels, traffic, News, Shopping, Amazon, jobs, Trends.",
   "repository": {
     "url": "https://github.com/kristerkb-pixel/rowfeed-seo-mcp",
     "source": "github"
