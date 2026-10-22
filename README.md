@@ -1,6 +1,6 @@
-# Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings, Google Hotels prices, website traffic and authority, backlinks, news, Amazon, App Store, company jobs, keyword volume and Google Trends
+# Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings and business data, Google Hotels prices, website traffic and authority, backlinks, news, Amazon, App Store, company jobs, keyword volume and Google Trends
 
-Sixteen pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
+Seventeen pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
 Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds, Apple's public App Store feeds and companies' public job boards. No blocked runs.
 
 | Tool | What it returns | Price |
@@ -14,6 +14,7 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 | [Google Jobs Scraper](https://apify.com/rowfeed/google-jobs-api) | Google Jobs listings for any search and location: title, employer, location, salary, job type, posted date and apply link, with date and job-type filters and a monitor mode | $2 per 1,000 jobs + $0.002 per 10 jobs requested |
 | [Google Ads Transparency & Ad Library](https://apify.com/rowfeed/google-ads-transparency) | Every ad a domain or advertiser runs on Google Search, YouTube, Play, Maps and Shopping from the Google Ads Transparency Center: advertiser, format, preview image, first and last shown; advertiser search by name and a monitor mode for new ads | $1 per 1,000 ads + $0.001 per 40 ads requested |
 | [Local Rank Tracker](https://apify.com/rowfeed/google-maps-rank-tracker) | Google Maps rank of a business at every point of a geo-grid around it (3x3 to 9x9): rank per point, the top 3 there, average rank, top-3 share and the competitors that beat it | $0.004 per grid point |
+| [Google Maps Scraper](https://apify.com/rowfeed/google-maps-scraper) | Every business Google Maps shows for a search in any city or around coordinates: name, category, address, phone, website, rating, reviews, opening hours and place id, up to 700 per search, with rating, reviews, website and phone filters | $2 per 1,000 places + $0.001 per search per 100 places asked for |
 | [Google Hotels API](https://apify.com/rowfeed/google-hotels-api) | Google Hotels prices for any city and dates: price per night, stars, rating, reviews and discounts, plus each hotel's prices on every booking site (Booking.com, Expedia, the official site) | $2 per 1,000 hotels + $0.004 per hotel for booking-site prices |
 | [Website Traffic Checker](https://apify.com/rowfeed/website-traffic-checker) | Bulk website traffic and domain authority for up to 10,000 domains: Google organic and paid traffic estimate, ranking keywords, domain rank, referring domains and backlinks | $4 per 1,000 domains + $0.12 per batch of up to 1,000 |
 | [Backlinks Checker](https://apify.com/rowfeed/backlink-checker) | Backlinks of any site or page: referring domains, linking pages, anchor text, dofollow, domain and page strength, spam score, first and last seen; strongest first, up to 10,000 per site | $1 per 1,000 backlinks + $0.04 per lookup of up to 1,000 |
@@ -29,7 +30,7 @@ Failed lookups are never charged. Each run also costs $0.001 to start.
 Server URL:
 
 ```
-https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
+https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
 ```
 
 Authenticate with your own Apify API token (free account at [apify.com](https://apify.com)), either via OAuth in clients that support it, or as a header:
@@ -38,7 +39,7 @@ Authenticate with your own Apify API token (free account at [apify.com](https://
 {
   "mcpServers": {
     "rowfeed-data": {
-      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
       "headers": { "Authorization": "Bearer <YOUR_APIFY_TOKEN>" }
     }
   }
