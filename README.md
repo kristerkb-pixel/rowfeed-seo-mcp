@@ -1,6 +1,6 @@
 # Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings and business data, Google Hotels prices, website traffic and authority, backlinks, broken links, SEO site audits, news, Amazon, App Store, Steam, company jobs, keyword volume and Google Trends
 
-Twenty-two pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
+Twenty-three pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
 Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds, Apple's public App Store feeds and companies' public job boards. No blocked runs.
 
 | Tool | What it returns | Price |
