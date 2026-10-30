@@ -1,6 +1,6 @@
 # Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings and business data, Google Hotels prices, website traffic and authority, backlinks, broken links, SEO site audits, news, Amazon, App Store, Steam, company jobs, keyword volume and Google Trends
 
-Twenty-four pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
+Twenty-five pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
 Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds, Apple's public App Store feeds and companies' public job boards. No blocked runs.
 
 | Tool | What it returns | Price |
@@ -25,6 +25,7 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 | [SEO Audit Tool & Website Crawler](https://apify.com/rowfeed/seo-site-audit) | Crawls a website and audits every page: title and meta description, H1, canonical, noindex, word count, images without alt, broken links and redirects, with issue codes, a 0-100 score and duplicate titles across the site | $2 per 1,000 pages + $0.0005 per extra link checked |
 | [Shopify Store List & Store Leads](https://apify.com/rowfeed/shopify-store-list) | Lists of websites that use Shopify, WooCommerce, Klaviyo or any of 7,000+ technologies, by country, language and domain rank, with each site's full tech stack; no personal data | $5 per 1,000 websites + $0.02 per run |
 | [PageSpeed Insights API](https://apify.com/rowfeed/pagespeed-insights-api) | Google PageSpeed Insights for a list of URLs, mobile and/or desktop: four Lighthouse scores, LCP, CLS, TBT, real-user Chrome data (LCP, INP, CLS), Core Web Vitals pass/fail and the top slow-downs with savings | $5 per 1,000 tests |
+| [DA PA Checker](https://apify.com/rowfeed/da-pa-checker) | Domain authority, page authority and spam score for up to 10,000 domains or URLs, plus referring domains | $2 per 1,000 + $0.10 per batch of 500 |
 | [Career Site Jobs Scraper](https://apify.com/rowfeed/career-site-jobs-scraper) | Open jobs from company career sites on Greenhouse, Lever, Ashby, Workday and SmartRecruiters, with filters and a monitor mode for new jobs | $1 per 1,000 jobs |
 | [Keyword Search Volume](https://apify.com/rowfeed/keyword-search-volume) | Monthly Google and Bing search volume, CPC, competition, 12-month trend, keyword difficulty and search intent for a keyword list, or keyword ideas from seed words | $3 per 1,000 keywords + $0.04 per lookup of up to 100 ($0.16 for a batch of up to 1,000) |
 | [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup |
@@ -37,7 +38,7 @@ Failed lookups are never charged. Each run also costs $0.001 to start.
 Server URL:
 
 ```
-https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
+https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/da-pa-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
 ```
 
 Authenticate with your own Apify API token (free account at [apify.com](https://apify.com)), either via OAuth in clients that support it, or as a header:
@@ -46,7 +47,7 @@ Authenticate with your own Apify API token (free account at [apify.com](https://
 {
   "mcpServers": {
     "rowfeed-data": {
-      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/da-pa-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
       "headers": { "Authorization": "Bearer <YOUR_APIFY_TOKEN>" }
     }
   }
