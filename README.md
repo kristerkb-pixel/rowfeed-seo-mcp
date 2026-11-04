@@ -1,6 +1,6 @@
 # Rowfeed Search & Market Data – MCP tools for ChatGPT brand visibility, Google search, Google Ads, Google Maps rankings, business data and reviews, Google Hotels prices, website traffic and authority, backlinks, broken links, SEO site audits, news, Amazon, App Store and Google Play reviews, Steam, company jobs, keyword volume and Google Trends
 
-Twenty-eight pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
+Thirty-one pay-per-use data tools for AI agents, served as a remote MCP server through Apify.
 Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) plus Google News' public feeds, Apple's public App Store feeds and companies' public job boards. No blocked runs.
 
 | Tool | What it returns | Price |
@@ -29,19 +29,22 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 | [YouTube Search API](https://apify.com/rowfeed/youtube-search-api) | YouTube search results for any keyword and country: position, title, views, upload date, length, Shorts flag and channel, plus free channel rank tracking | $1 per 1,000 videos + $0.003 per keyword |
 | [Google Reviews Scraper](https://apify.com/rowfeed/google-maps-reviews-scraper) | Google Maps reviews of any business by Maps link, place ID or name: rating, text, date, owner reply and review highlights, plus the place's rating and review count; newest, relevant, highest or lowest first; no reviewer names | $0.20 per 1,000 reviews + $0.001 per 10 reviews asked for |
 | [App Reviews Scraper](https://apify.com/rowfeed/app-reviews-scraper) | Google Play and App Store reviews of any app and country: rating, title, text, date, app version, helpful votes and developer reply; no reviewer names | $0.06 per 1,000 reviews + $0.001 per 25 reviews asked for |
+| [Trustpilot Reviews Scraper](https://apify.com/rowfeed/trustpilot-reviews-scraper) | The newest or most relevant Trustpilot reviews of any company by link, website or domain: rating, title, text, date, language, reviewer country and company reply; no reviewer names | $0.20 per 1,000 reviews + $0.001 per 20 reviews asked for |
+| [Website Technology Checker](https://apify.com/rowfeed/website-technology-checker) | The tech stack of any website, in bulk: CMS, e-commerce platform, analytics, ad pixels, marketing and chat tools, payments, frameworks, hosting and CDN, grouped by category | $2 per 1,000 websites; $0.02 per database lookup for sites that block visits |
+| [PDF to Excel & Table Extractor](https://apify.com/rowfeed/pdf-table-extractor) | Every table in uploaded or linked PDFs (bank statements, invoices, price lists, reports) as rows plus one Excel file per PDF | $3 per 1,000 pages with tables + $0.10 per 1,000 pages read |
 | [Career Site Jobs Scraper](https://apify.com/rowfeed/career-site-jobs-scraper) | Open jobs from company career sites on Greenhouse, Lever, Ashby, Workday and SmartRecruiters, with filters and a monitor mode for new jobs | $1 per 1,000 jobs |
 | [Keyword Search Volume](https://apify.com/rowfeed/keyword-search-volume) | Monthly Google and Bing search volume, CPC, competition, 12-month trend, keyword difficulty and search intent for a keyword list, or keyword ideas from seed words | $3 per 1,000 keywords + $0.04 per lookup of up to 100 ($0.16 for a batch of up to 1,000) |
 | [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup |
 | [Google Trends Explorer](https://apify.com/rowfeed/google-trends-explorer) | Google Trends interest over time for up to 5 compared keywords, with average, peak, latest value and trend | $0.001 per keyword + $0.02 per lookup of up to 5 |
 
-Failed lookups are never charged. Each run also costs $0.001 to start ($0.006 for the two review tools, which wait on a queue).
+Failed lookups are never charged. Each run also costs $0.001 to start ($0.006 for the three review tools, which wait on a queue; $0.002 for PDF to Excel).
 
 ## Connect (remote MCP, streamable HTTP)
 
 Server URL:
 
 ```
-https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/youtube-search-api,rowfeed/google-maps-reviews-scraper,rowfeed/app-reviews-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/da-pa-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
+https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/youtube-search-api,rowfeed/google-maps-reviews-scraper,rowfeed/app-reviews-scraper,rowfeed/trustpilot-reviews-scraper,rowfeed/website-technology-checker,rowfeed/pdf-table-extractor,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/da-pa-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer
 ```
 
 Authenticate with your own Apify API token (free account at [apify.com](https://apify.com)), either via OAuth in clients that support it, or as a header:
@@ -50,7 +53,7 @@ Authenticate with your own Apify API token (free account at [apify.com](https://
 {
   "mcpServers": {
     "rowfeed-data": {
-      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/youtube-search-api,rowfeed/google-maps-reviews-scraper,rowfeed/app-reviews-scraper,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/da-pa-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
+      "url": "https://mcp.apify.com?tools=rowfeed/google-serp-api,rowfeed/google-images-api,rowfeed/ai-search-visibility-tracker,rowfeed/google-news-monitor,rowfeed/amazon-product-tracker,rowfeed/google-shopping-prices,rowfeed/apple-app-store-scraper,rowfeed/steam-game-data,rowfeed/youtube-transcript-api,rowfeed/youtube-search-api,rowfeed/google-maps-reviews-scraper,rowfeed/app-reviews-scraper,rowfeed/trustpilot-reviews-scraper,rowfeed/website-technology-checker,rowfeed/pdf-table-extractor,rowfeed/google-jobs-api,rowfeed/google-ads-transparency,rowfeed/google-maps-rank-tracker,rowfeed/google-maps-scraper,rowfeed/google-hotels-api,rowfeed/website-traffic-checker,rowfeed/backlink-checker,rowfeed/broken-link-checker,rowfeed/seo-site-audit,rowfeed/shopify-store-list,rowfeed/pagespeed-insights-api,rowfeed/da-pa-checker,rowfeed/career-site-jobs-scraper,rowfeed/keyword-search-volume,rowfeed/competitor-keywords,rowfeed/google-trends-explorer",
       "headers": { "Authorization": "Bearer <YOUR_APIFY_TOKEN>" }
     }
   }
