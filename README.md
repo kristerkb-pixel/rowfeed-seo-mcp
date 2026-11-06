@@ -41,8 +41,8 @@ Licensed data (DataForSEO's Google SERP, Amazon, Google Ads and ranking data) pl
 | [Competitor Keywords](https://apify.com/rowfeed/competitor-keywords) | Every Google keyword a domain ranks for: position, URL, volume, CPC, difficulty, intent, estimated traffic, plus a domain summary | $2 per 1,000 keywords + $0.02 per domain lookup |
 | [Google Trends Explorer](https://apify.com/rowfeed/google-trends-explorer) | Google Trends interest over time for up to 5 compared keywords, with average, peak, latest value and trend | $0.001 per keyword + $0.02 per lookup of up to 5 |
 | [Remove Duplicates & Merge](https://apify.com/rowfeed/dataset-merge-dedup) | Merge Apify datasets, CSV and JSON files into one table and remove duplicates by any fields (url, email, website), keeping the first or newest row | $0.10 per 1,000 rows out |
-| [Google Sheets Export](https://apify.com/rowfeed/google-sheets-export) | Send Apify datasets, CSV and JSON files to any Google Sheet by sharing the sheet with our export account, no OAuth. Append or replace, skip rows already there, new columns added. $0.05 per 1,000 rows. |
-| [Website Email Extractor & Contact Finder](https://apify.com/rowfeed/website-contact-finder) | Company emails, phone numbers, social profiles and address from any website's own contact pages, in bulk. Role addresses only (info@, sales@). $2 per 1,000 websites with a result. |
+| [Google Sheets Export](https://apify.com/rowfeed/google-sheets-export) | Send Apify datasets, CSV and JSON files to any Google Sheet by sharing the sheet with our export account, no OAuth. Append or replace, skip rows already there, new columns added | $0.05 per 1,000 rows |
+| [Website Email Extractor & Contact Finder](https://apify.com/rowfeed/website-contact-finder) | Company emails, phone numbers, social profiles and address from any website's own contact pages, in bulk. Role addresses only (info@, sales@) | $2 per 1,000 websites with a result |
 
 Failed lookups are never charged. Each run also costs $0.001 to start ($0.006 for the four review tools, which wait on a queue; $0.002 for PDF to Excel).
 
