@@ -1,5 +1,5 @@
 app:
-  description: Paste up to 50 keywords and get Google search volume, CPC and competition for each, plus an AI-written brief that ranks the best low-competition opportunities and suggests content for them. Data comes from the Keyword Search Volume Actor on Apify (pay per result, built by Rowfeed, the template author).
+  description: Paste up to 50 keywords and get Google search volume, CPC and competition for each, plus an AI-written brief that ranks the best low-competition opportunities and suggests content for them. Data comes from the Keyword Search Volume Actor on Apify (pay per keyword, any paid Apify plan; built and sold by Rowfeed, the template author).
   icon: "\U0001F50E"
   icon_background: '#E4FBCC'
   mode: workflow
@@ -10,7 +10,7 @@ version: 0.3.0
 workflow:
   conversation_variables: []
   environment_variables:
-  - description: Your Apify API token (Apify Console > Settings > API & Integrations). Free plan works; you pay only per keyword checked.
+  - description: Your Apify API token (Apify Console > Settings > API & Integrations). Needs any paid Apify plan; about $0.04 per run plus $0.003 per keyword with data.
     id: 6c1f2c3e-1d2a-4b9e-9d0a-1a2b3c4d5e01
     name: APIFY_TOKEN
     value: ''
