@@ -1,0 +1,269 @@
+app:
+  description: Finds local businesses on Google Maps for any business type and city (name, category, rating, reviews, website, phone, address) and has AI rank them and write a personalized first line for
+    outreach about your offer. Data comes from the Google Maps Scraper Actor on Apify (about $0.002 per business; needs any paid Apify plan); built and sold by Rowfeed, the template author.
+  icon: 📍
+  icon_background: '#FCE7F6'
+  mode: workflow
+  name: Local Business Lead List from Google Maps + AI Opening Lines
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: Your Apify API token (Apify Console > Settings > API & Integrations). Live Google Maps searches need any paid Apify plan; about $0.002 per business found.
+    id: 9f4a5b6c-4d5e-4f60-8b12-3c4d5e6f7a04
+    name: APIFY_TOKEN
+    value: ''
+    value_type: secret
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - id: e1
+      source: start
+      sourceHandle: source
+      target: code_in
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: start
+        targetType: code
+        isInIteration: false
+    - id: e2
+      source: code_in
+      sourceHandle: source
+      target: http
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: code
+        targetType: http-request
+        isInIteration: false
+    - id: e3
+      source: http
+      sourceHandle: source
+      target: code_out
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: false
+    - id: e4
+      source: code_out
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: code
+        targetType: llm
+        isInIteration: false
+    - id: e5
+      source: llm
+      sourceHandle: source
+      target: end
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: llm
+        targetType: end
+        isInIteration: false
+    nodes:
+    - id: start
+      type: custom
+      position:
+        x: 30
+        y: 250
+      data:
+        type: start
+        title: Start
+        desc: What to find, where, and what you sell
+        variables:
+        - variable: business_type
+          label: Business type (e.g. dentist, plumber, coffee shop)
+          type: text-input
+          required: true
+          max_length: 100
+          options: []
+        - variable: city
+          label: City, region, country (e.g. Austin, Texas, United States)
+          type: text-input
+          required: true
+          max_length: 150
+          options: []
+        - variable: your_offer
+          label: What you sell to them (one sentence)
+          type: paragraph
+          required: true
+          max_length: 500
+          options: []
+        - variable: max_leads
+          label: Number of businesses (default 20, max 100)
+          type: number
+          required: false
+          options: []
+    - id: code_in
+      type: custom
+      position:
+        x: 330
+        y: 250
+      data:
+        type: code
+        title: Build search
+        desc: Business type + location for Google Maps
+        code_language: python3
+        code: "import json\n\ndef main(business_type: str, city: str, max_leads) -> dict:\n    try:\n        n = int(max_leads or 20)\n    except (TypeError, ValueError):\n        n = 20\n    n = max(1,\
+          \ min(n, 100))\n    what = (business_type or 'dentist').strip()\n    where = (city or 'Austin, Texas, United States').strip()\n    body = {'searches': [what], 'location': ','.join(p.strip() for\
+          \ p in where.split(',')), 'maxPlaces': n, 'language': 'English'}\n    return {'body': json.dumps(body)}\n"
+        variables:
+        - variable: business_type
+          value_selector:
+          - start
+          - business_type
+        - variable: city
+          value_selector:
+          - start
+          - city
+        - variable: max_leads
+          value_selector:
+          - start
+          - max_leads
+        outputs:
+          body:
+            type: string
+            children: null
+    - id: http
+      type: custom
+      position:
+        x: 630
+        y: 250
+      data:
+        type: http-request
+        title: Find businesses (Apify)
+        desc: Runs rowfeed/google-maps-scraper; one row per business
+        method: post
+        url: https://api.apify.com/v2/acts/rowfeed~google-maps-scraper/run-sync-get-dataset-items?clean=1&maxTotalChargeUsd=2
+        authorization:
+          type: api-key
+          config:
+            type: bearer
+            api_key: '{{#env.APIFY_TOKEN#}}'
+        headers: Content-Type:application/json
+        params: ''
+        body:
+          type: json
+          data:
+          - type: text
+            value: '{{#code_in.body#}}'
+        timeout:
+          max_connect_timeout: 30
+          max_read_timeout: 300
+          max_write_timeout: 30
+        retry_config:
+          retry_enabled: true
+          max_retries: 1
+          retry_interval: 5000
+    - id: code_out
+      type: custom
+      position:
+        x: 930
+        y: 250
+      data:
+        type: code
+        title: Build lead table
+        desc: One row per business
+        code_language: python3
+        code: "import json\n\ndef main(status_code: int, body: str) -> dict:\n    if status_code >= 400:\n        return {'leads': f'Apify returned HTTP {status_code}: {body[:300]}', 'count': 0}\n    try:\n\
+          \        rows = json.loads(body)\n    except Exception:\n        return {'leads': 'Could not read the Apify response.', 'count': 0}\n    errs = [r for r in rows if r.get('error')]\n    rows =\
+          \ [r for r in rows if r.get('title') and not r.get('error')]\n    if not rows:\n        msg = '; '.join(str(e.get('errorMessage')) for e in errs[:2]) or 'No businesses found for this search.'\n\
+          \        return {'leads': msg, 'count': 0}\n    lines = ['| # | Business | Category | Rating (reviews) | Website | Phone | Address |', '|---|---|---|---|---|---|---|']\n    for i, r in enumerate(rows,\
+          \ 1):\n        lines.append(f\"| {i} | {r.get('title')} | {r.get('category') or ''} | {r.get('rating') or '-'} ({r.get('reviews') or 0}) | \"\n                     f\"{(r.get('website') or 'none').split('?utm')[0]}\
+          \ | {r.get('phone') or ''} | {(r.get('address') or '').replace('|', '/')} |\")\n    return {'leads': '\\n'.join(lines), 'count': len(rows)}\n"
+        variables:
+        - variable: status_code
+          value_selector:
+          - http
+          - status_code
+        - variable: body
+          value_selector:
+          - http
+          - body
+        outputs:
+          leads:
+            type: string
+            children: null
+          count:
+            type: number
+            children: null
+    - id: llm
+      type: custom
+      position:
+        x: 1230
+        y: 250
+      data:
+        type: llm
+        title: Rank leads and write opening lines
+        desc: Fit score and a personal first line per business
+        model:
+          provider: langgenius/openai/openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.2
+        prompt_template:
+        - role: system
+          text: You are a B2B sales assistant. Use only the facts in the lead table (name, category, rating, reviews, website). Never invent details about a business. Write natural, specific, non-pushy
+            lines.
+        - role: user
+          text: 'What we sell: {{#start.your_offer#}}
+
+
+            Leads found on Google Maps:
+
+
+            {{#code_out.leads#}}
+
+
+            Return a markdown table with columns: #, Business, Fit (High/Medium/Low), Why (one short reason from the data, e.g. no website, few reviews, high rating), Opening line (one sentence for a cold
+            email or call that mentions something true about them and connects to our offer). Sort by fit. If the lead table shows an error, explain it and stop.'
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+    - id: end
+      type: custom
+      position:
+        x: 1530
+        y: 250
+      data:
+        type: end
+        title: End
+        outputs:
+        - variable: ranked_leads
+          value_selector:
+          - llm
+          - text
+        - variable: lead_table
+          value_selector:
+          - code_out
+          - leads
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.8

@@ -73,24 +73,25 @@ workflow:
           import json
 
           def main(pdf_files: list, pdf_urls: str) -> dict:
-              links = []
+              links, names = [], {}
               for f in pdf_files or []:
                   u = (f.get('url') or f.get('remote_url') or '') if isinstance(f, dict) else ''
                   if u.startswith('http'):
                       links.append(u)
+                      names[u] = f.get('filename') or f.get('name') or 'uploaded.pdf'
               for line in (pdf_urls or '').splitlines():
                   line = line.strip()
                   if line.startswith('http'):
                       links.append(line)
               if not links:  # sample so the first run always shows something
                   links = ['https://raw.githubusercontent.com/kristerkb-pixel/rowfeed-seo-mcp/main/examples/bank-statement-example.pdf']
-              return {'body': json.dumps({'pdfs': links[:20], 'mode': 'auto', 'firstRowIsHeader': True}), 'count': len(links[:20])}
+              return {'body': json.dumps({'pdfs': links[:20], 'mode': 'auto', 'firstRowIsHeader': True}), 'names': json.dumps(names)}
         variables:
         - {variable: pdf_files, value_selector: [start, pdf_files]}
         - {variable: pdf_urls, value_selector: [start, pdf_urls]}
         outputs:
           body: {type: string, children: null}
-          count: {type: number, children: null}
+          names: {type: string, children: null}
     - id: http
       type: custom
       position: {x: 630, y: 250}
@@ -146,13 +147,20 @@ workflow:
               except ValueError:
                   return None
 
-          def main(status_code: int, body: str) -> dict:
+          def main(status_code: int, body: str, names: str) -> dict:
               if status_code >= 400:
                   return {'report': f'Apify returned HTTP {status_code}: {body[:300]}', 'excel': ''}
               try:
                   rows = json.loads(body)
               except Exception:
                   return {'report': 'Could not read the Apify response.', 'excel': ''}
+              try:
+                  nm = json.loads(names or '{}')
+              except Exception:
+                  nm = {}
+              for r in rows:
+                  if r.get('source') in nm:
+                      r['file_name'] = nm[r['source']]
               errors = [r for r in rows if r.get('error')]
               rows = [r for r in rows if not r.get('error') and r.get('cells')]
               tables, excel = {}, []
@@ -187,8 +195,10 @@ workflow:
                       seen.setdefault(key, r.get('row'))
                   if ai is not None:
                       amts = sorted(((num(r['cells'][ai]), r) for r in trs if ai < len(r['cells']) and num(r['cells'][ai]) is not None), key=lambda x: x[0])
-                      if amts:
-                          findings.append(f'{fname}: largest outgoing {amts[0][0]:.2f} ({" ".join(map(str, amts[0][1]["cells"][:2]))}), largest incoming {amts[-1][0]:.2f}')
+                      if amts and amts[0][0] < 0:
+                          findings.append(f'{fname}: largest outgoing {amts[0][0]:.2f} ({" ".join(map(str, amts[0][1]["cells"][:2]))})')
+                      if amts and amts[-1][0] > 0:
+                          findings.append(f'{fname}: largest incoming {amts[-1][0]:.2f} ({" ".join(map(str, amts[-1][1]["cells"][:2]))})')
               if not rows:
                   out.append('No tables found. Scanned PDFs need OCR first (rowfeed/image-to-text-ocr).')
               for e in errors[:5]:
@@ -198,6 +208,7 @@ workflow:
         variables:
         - {variable: status_code, value_selector: [http, status_code]}
         - {variable: body, value_selector: [http, body]}
+        - {variable: names, value_selector: [code_in, names]}
         outputs:
           report: {type: string, children: null}
           excel: {type: string, children: null}

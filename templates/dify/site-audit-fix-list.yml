@@ -1,0 +1,269 @@
+app:
+  description: Crawls a website, checks every page for SEO problems (titles, meta descriptions, headings, thin content, missing alt text, broken links, noindex) and has AI turn the results into a prioritized
+    fix list with ready-to-paste title and meta rewrites. Crawling runs on the SEO Site Audit Actor on Apify (about $0.002 per page; works on the free Apify plan); built and sold by Rowfeed, the template
+    author.
+  icon: 🩺
+  icon_background: '#E0F2FE'
+  mode: workflow
+  name: Website SEO Audit to Prioritized Fix List (AI)
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: Your Apify API token (Apify Console > Settings > API & Integrations). The free Apify plan works; an audit costs about $0.002 per page.
+    id: 8e3f4a5b-3c4d-4e5f-9a01-2b3c4d5e6f03
+    name: APIFY_TOKEN
+    value: ''
+    value_type: secret
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - id: e1
+      source: start
+      sourceHandle: source
+      target: code_in
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: start
+        targetType: code
+        isInIteration: false
+    - id: e2
+      source: code_in
+      sourceHandle: source
+      target: http
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: code
+        targetType: http-request
+        isInIteration: false
+    - id: e3
+      source: http
+      sourceHandle: source
+      target: code_out
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: false
+    - id: e4
+      source: code_out
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: code
+        targetType: llm
+        isInIteration: false
+    - id: e5
+      source: llm
+      sourceHandle: source
+      target: end
+      targetHandle: target
+      type: custom
+      data:
+        sourceType: llm
+        targetType: end
+        isInIteration: false
+    nodes:
+    - id: start
+      type: custom
+      position:
+        x: 30
+        y: 250
+      data:
+        type: start
+        title: Start
+        desc: Website to audit
+        variables:
+        - variable: website
+          label: Website URL (e.g. https://example.com)
+          type: text-input
+          required: true
+          max_length: 300
+          options: []
+        - variable: max_pages
+          label: Max pages to audit (default 50)
+          type: number
+          required: false
+          options: []
+    - id: code_in
+      type: custom
+      position:
+        x: 330
+        y: 250
+      data:
+        type: code
+        title: Build audit input
+        desc: Normalizes the URL and page limit
+        code_language: python3
+        code: "import json\n\ndef main(website: str, max_pages) -> dict:\n    url = (website or '').strip()\n    if url and not url.startswith('http'):\n        url = 'https://' + url\n    try:\n      \
+          \  n = int(max_pages or 50)\n    except (TypeError, ValueError):\n        n = 50\n    n = max(1, min(n, 500))\n    return {'body': json.dumps({'startUrls': [url or 'https://www.scrapethissite.com/'],\
+          \ 'maxPages': n, 'checkBrokenLinks': True}), 'site': url}\n"
+        variables:
+        - variable: website
+          value_selector:
+          - start
+          - website
+        - variable: max_pages
+          value_selector:
+          - start
+          - max_pages
+        outputs:
+          body:
+            type: string
+            children: null
+          site:
+            type: string
+            children: null
+    - id: http
+      type: custom
+      position:
+        x: 630
+        y: 250
+      data:
+        type: http-request
+        title: Audit pages (Apify)
+        desc: Runs rowfeed/seo-site-audit; one row per page
+        method: post
+        url: https://api.apify.com/v2/acts/rowfeed~seo-site-audit/run-sync-get-dataset-items?clean=1&maxTotalChargeUsd=2
+        authorization:
+          type: api-key
+          config:
+            type: bearer
+            api_key: '{{#env.APIFY_TOKEN#}}'
+        headers: Content-Type:application/json
+        params: ''
+        body:
+          type: json
+          data:
+          - type: text
+            value: '{{#code_in.body#}}'
+        timeout:
+          max_connect_timeout: 30
+          max_read_timeout: 300
+          max_write_timeout: 30
+        retry_config:
+          retry_enabled: true
+          max_retries: 1
+          retry_interval: 5000
+    - id: code_out
+      type: custom
+      position:
+        x: 930
+        y: 250
+      data:
+        type: code
+        title: Summarize issues
+        desc: Score, issue counts, worst pages, broken links
+        code_language: python3
+        code: "import json\nfrom collections import Counter\n\nLABEL = {'title_too_long': 'Title too long', 'title_too_short': 'Title too short', 'missing_title': 'Missing title',\n         'meta_description_too_long':\
+          \ 'Meta description too long', 'meta_description_too_short': 'Meta description too short',\n         'missing_meta_description': 'Missing meta description', 'missing_h1': 'Missing H1', 'multiple_h1':\
+          \ 'Several H1',\n         'thin_content': 'Thin content', 'images_missing_alt': 'Images without alt text', 'missing_og_tags': 'No Open Graph tags',\n         'noindex': 'Noindex', 'broken_links':\
+          \ 'Broken links', 'duplicate_title': 'Duplicate title',\n         'duplicate_meta_description': 'Duplicate meta description', 'missing_canonical': 'No canonical', 'slow_response': 'Slow response'}\n\
+          \n\ndef main(status_code: int, body: str, site: str) -> dict:\n    if status_code >= 400:\n        return {'report': f'Apify returned HTTP {status_code}: {body[:300]}'}\n    try:\n        rows\
+          \ = json.loads(body)\n    except Exception:\n        return {'report': 'Could not read the Apify response.'}\n    pages = [r for r in rows if r.get('is_html') and not r.get('error')]\n    failed\
+          \ = [r for r in rows if r.get('error') or (r.get('status_code') or 200) >= 400]\n    if not pages:\n        return {'report': f'No HTML pages could be audited for {site}. ' + '; '.join(str(r.get('error')\
+          \ or r.get('status_code')) for r in rows[:5])}\n    avg = round(sum(r.get('score') or 0 for r in pages) / len(pages))\n    cnt = Counter(i for r in pages for i in (r.get('issues') or []))\n  \
+          \  out = [f'Site: {site}', f'Pages audited: {len(pages)}, average score: {avg}/100, pages with errors or 4xx/5xx: {len(failed)}', '',\n           '## Issues by number of pages']\n    out += [f'-\
+          \ {LABEL.get(k, k)}: {v} pages' for k, v in cnt.most_common()]\n    out += ['', '## Worst pages (lowest score)']\n    for r in sorted(pages, key=lambda r: r.get('score') or 0)[:10]:\n        out.append(f\"\
+          - {r.get('score')}/100 {r.get('url')} | title ({r.get('title_length')} chars): {r.get('title')} | \"\n                   f\"meta ({r.get('meta_description_length')} chars): {(r.get('meta_description')\
+          \ or '')[:160]} | issues: {', '.join(r.get('issues') or [])}\")\n    bl = [(r.get('url'), b) for r in pages for b in (r.get('broken_links') or [])][:20]\n    if bl:\n        out += ['', '## Broken\
+          \ links (page -> link)'] + [f'- {p} -> {b if isinstance(b, str) else json.dumps(b)[:150]}' for p, b in bl]\n    if failed:\n        out += ['', '## Pages that failed'] + [f\"- {r.get('url')}:\
+          \ {r.get('error') or r.get('status_code')}\" for r in failed[:10]]\n    return {'report': '\\n'.join(out)[:60000]}\n"
+        variables:
+        - variable: status_code
+          value_selector:
+          - http
+          - status_code
+        - variable: body
+          value_selector:
+          - http
+          - body
+        - variable: site
+          value_selector:
+          - code_in
+          - site
+        outputs:
+          report:
+            type: string
+            children: null
+    - id: llm
+      type: custom
+      position:
+        x: 1230
+        y: 250
+      data:
+        type: llm
+        title: Write fix list with AI
+        desc: Prioritized fixes and title/meta rewrites
+        model:
+          provider: langgenius/openai/openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.2
+        prompt_template:
+        - role: system
+          text: You are a senior technical SEO consultant. Use only the audit data given. Be concrete and brief.
+        - role: user
+          text: 'Audit results:
+
+
+            {{#code_out.report#}}
+
+
+            Write:
+
+            1. A 2-sentence verdict on the site.
+
+            2. A prioritized fix list (highest impact first): what, how many pages, how to fix, effort (low/medium/high).
+
+            3. For the 5 worst pages: a new title (50-60 characters) and meta description (140-155 characters) ready to paste.
+
+            If the report shows an error, explain it and stop.'
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+    - id: end
+      type: custom
+      position:
+        x: 1530
+        y: 250
+      data:
+        type: end
+        title: End
+        outputs:
+        - variable: fix_list
+          value_selector:
+          - llm
+          - text
+        - variable: audit_summary
+          value_selector:
+          - code_out
+          - report
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.8
