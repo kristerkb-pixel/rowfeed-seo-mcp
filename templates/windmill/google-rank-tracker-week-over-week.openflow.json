@@ -1,0 +1,107 @@
+{
+  "summary": "Google rank tracker with week-over-week changes (Apify)",
+  "description": "Checks where your domain ranks in the Google top 100 for each keyword and shows the change since the previous run (up, down, entered, dropped out). Schedule it weekly. Data: Google SERP API Actor on Apify (pay per result, $0.03 per keyword for the top 100; needs any paid Apify plan). Disclosure: the Actor is built and sold by Rowfeed, the author of this flow.",
+  "value": {
+    "modules": [
+      {
+        "id": "a",
+        "summary": "Get Google positions (Apify)",
+        "value": {
+          "type": "rawscript",
+          "language": "bun",
+          "content": "type Apify = { token: string };\n\n// Gets Google positions (top 100) of your domain for each keyword from the Google SERP API Actor on Apify.\n// Pay per result on Apify: $0.003 per Google results page (top 100 = $0.03 per keyword). Built and sold by Rowfeed.\nexport async function main(apify: Apify, keywords: string[], domain: string, location = \"United States\", language = \"English\") {\n  const body = { queries: keywords, targetDomain: domain, location, language, device: \"desktop\", resultsPerQuery: 100 };\n  const r = await fetch(\"https://api.apify.com/v2/acts/rowfeed~google-serp-api/run-sync-get-dataset-items?clean=1&maxTotalChargeUsd=2\", {\n    method: \"POST\",\n    headers: { Authorization: `Bearer ${apify.token}`, \"Content-Type\": \"application/json\" },\n    body: JSON.stringify(body),\n  });\n  if (!r.ok) throw new Error(`Apify returned HTTP ${r.status}: ${(await r.text()).slice(0, 300)}`);\n  return await r.json();\n}\n",
+          "input_transforms": {
+            "apify": {
+              "type": "javascript",
+              "expr": "flow_input.apify"
+            },
+            "keywords": {
+              "type": "javascript",
+              "expr": "flow_input.keywords"
+            },
+            "domain": {
+              "type": "javascript",
+              "expr": "flow_input.domain"
+            },
+            "location": {
+              "type": "javascript",
+              "expr": "flow_input.location"
+            },
+            "language": {
+              "type": "javascript",
+              "expr": "flow_input.language"
+            }
+          }
+        }
+      },
+      {
+        "id": "b",
+        "summary": "Compare with last run",
+        "value": {
+          "type": "rawscript",
+          "language": "bun",
+          "content": "import * as wmill from \"windmill-client\";\n\n// Compares this run with the previous run (stored in Windmill state) and builds a week-over-week rank report.\nexport async function main(rows: any[], domain: string) {\n  let prev: Record<string, number | null> = {};\n  try { prev = ((await wmill.getState()) ?? {}) as Record<string, number | null>; } catch { prev = {}; }\n  const now: Record<string, number | null> = {};\n  const errors = rows.filter((r) => r.error).map((r) => `${r.query ?? r.keyword}: ${r.errorMessage}`);\n  const report = rows.filter((r) => !r.error).map((r) => {\n    const pos: number | null = r.target_position ?? null;\n    now[r.query] = pos;\n    const before = prev[r.query];\n    let change = \"first check\";\n    if (before !== undefined) {\n      if (pos === null && before === null) change = \"still not in top 100\";\n      else if (pos === null) change = `dropped out (was ${before})`;\n      else if (before === null) change = \"entered the top 100\";\n      else if (before > pos) change = `up ${before - pos}`;\n      else if (before < pos) change = `down ${pos - before}`;\n      else change = \"no change\";\n    }\n    return { keyword: r.query, position: pos, previous: before ?? null, change, ranking_url: r.target_url ?? null };\n  });\n  try { await wmill.setState({ ...prev, ...now }); } catch { /* manual runs without state still return the report */ }\n  const lines = report.map((x) => `${x.keyword}: ${x.position ?? \"not in top 100\"} (${x.change})`);\n  return { domain, checked_at: new Date().toISOString(), summary: lines.join(\"\\n\"), report, errors };\n}\n",
+          "input_transforms": {
+            "rows": {
+              "type": "javascript",
+              "expr": "results.a"
+            },
+            "domain": {
+              "type": "javascript",
+              "expr": "flow_input.domain"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "order": [
+      "apify",
+      "domain",
+      "keywords",
+      "location",
+      "language"
+    ],
+    "required": [
+      "apify",
+      "domain",
+      "keywords"
+    ],
+    "properties": {
+      "apify": {
+        "type": "object",
+        "format": "resource-apify",
+        "description": "Your Apify connection (resource type apify)"
+      },
+      "domain": {
+        "type": "string",
+        "description": "Your website, e.g. example.com",
+        "default": "apify.com"
+      },
+      "keywords": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Keywords to track",
+        "default": [
+          "web scraping api",
+          "serp api"
+        ]
+      },
+      "location": {
+        "type": "string",
+        "description": "Country, e.g. United States, Germany, Norway",
+        "default": "United States"
+      },
+      "language": {
+        "type": "string",
+        "description": "Search language",
+        "default": "English"
+      }
+    }
+  }
+}
