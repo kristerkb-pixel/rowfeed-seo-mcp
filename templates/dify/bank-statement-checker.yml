@@ -1,0 +1,245 @@
+app:
+  description: Turns bank statement, invoice or report PDFs into clean tables (plus an Excel download) and has AI check them for balance errors, duplicate lines and unusual amounts. Data extraction runs on the PDF Table Extractor Actor on Apify (pay per page with tables; works on the free Apify plan); built and sold by Rowfeed, the template author.
+  icon: "\U0001F9FE"
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: Bank Statement & Invoice PDF Checker (tables + AI review)
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: Your Apify API token (Apify Console > Settings > API & Integrations). The free Apify plan works; you pay about $0.003 per PDF page with tables.
+    id: 7d2e3f4a-2b3c-4d5e-8f90-1a2b3c4d5e02
+    name: APIFY_TOKEN
+    value: ''
+    value_type: secret
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - {id: e1, source: start, sourceHandle: source, target: code_in, targetHandle: target, type: custom, data: {sourceType: start, targetType: code, isInIteration: false}}
+    - {id: e2, source: code_in, sourceHandle: source, target: http, targetHandle: target, type: custom, data: {sourceType: code, targetType: http-request, isInIteration: false}}
+    - {id: e3, source: http, sourceHandle: source, target: code_out, targetHandle: target, type: custom, data: {sourceType: http-request, targetType: code, isInIteration: false}}
+    - {id: e4, source: code_out, sourceHandle: source, target: llm, targetHandle: target, type: custom, data: {sourceType: code, targetType: llm, isInIteration: false}}
+    - {id: e5, source: llm, sourceHandle: source, target: end, targetHandle: target, type: custom, data: {sourceType: llm, targetType: end, isInIteration: false}}
+    nodes:
+    - id: start
+      type: custom
+      position: {x: 30, y: 250}
+      data:
+        type: start
+        title: Start
+        desc: Upload PDFs or paste links to them
+        variables:
+        - variable: pdf_files
+          label: PDF files (bank statements, invoices, reports)
+          type: file-list
+          required: false
+          max_length: 10
+          allowed_file_types: [document]
+          allowed_file_extensions: [.pdf]
+          allowed_file_upload_methods: [local_file, remote_url]
+          options: []
+        - variable: pdf_urls
+          label: Or links to PDFs (one per line)
+          type: paragraph
+          required: false
+          max_length: 5000
+          options: []
+    - id: code_in
+      type: custom
+      position: {x: 330, y: 250}
+      data:
+        type: code
+        title: Collect PDF links
+        desc: Uploaded files and pasted links become one list for Apify
+        code_language: python3
+        code: |
+          import json
+
+          def main(pdf_files: list, pdf_urls: str) -> dict:
+              links = []
+              for f in pdf_files or []:
+                  u = (f.get('url') or f.get('remote_url') or '') if isinstance(f, dict) else ''
+                  if u.startswith('http'):
+                      links.append(u)
+              for line in (pdf_urls or '').splitlines():
+                  line = line.strip()
+                  if line.startswith('http'):
+                      links.append(line)
+              if not links:  # sample so the first run always shows something
+                  links = ['https://raw.githubusercontent.com/kristerkb-pixel/rowfeed-seo-mcp/main/examples/bank-statement-example.pdf']
+              return {'body': json.dumps({'pdfs': links[:20], 'mode': 'auto', 'firstRowIsHeader': True}), 'count': len(links[:20])}
+        variables:
+        - {variable: pdf_files, value_selector: [start, pdf_files]}
+        - {variable: pdf_urls, value_selector: [start, pdf_urls]}
+        outputs:
+          body: {type: string, children: null}
+          count: {type: number, children: null}
+    - id: http
+      type: custom
+      position: {x: 630, y: 250}
+      data:
+        type: http-request
+        title: Extract tables (Apify)
+        desc: Runs rowfeed/pdf-table-extractor; one row per table row
+        method: post
+        url: https://api.apify.com/v2/acts/rowfeed~pdf-table-extractor/run-sync-get-dataset-items?clean=1&maxTotalChargeUsd=2
+        authorization:
+          type: api-key
+          config:
+            type: bearer
+            api_key: '{{#env.APIFY_TOKEN#}}'
+        headers: 'Content-Type:application/json'
+        params: ''
+        body:
+          type: json
+          data:
+          - type: text
+            value: '{{#code_in.body#}}'
+        timeout:
+          max_connect_timeout: 30
+          max_read_timeout: 300
+          max_write_timeout: 30
+        retry_config:
+          retry_enabled: true
+          max_retries: 1
+          retry_interval: 5000
+    - id: code_out
+      type: custom
+      position: {x: 930, y: 250}
+      data:
+        type: code
+        title: Rebuild tables and run checks
+        desc: Running balance, duplicate lines, largest amounts
+        code_language: python3
+        code: |
+          import json
+          import re
+
+          def num(v):
+              s = str(v or '').strip().replace(' ', '').replace('−', '-')
+              if not re.search(r'\d', s):
+                  return None
+              if ',' in s and '.' in s:
+                  s = s.replace(',', '') if s.rfind('.') > s.rfind(',') else s.replace('.', '').replace(',', '.')
+              elif ',' in s:
+                  s = s.replace(',', '.') if len(s.split(',')[-1]) == 2 else s.replace(',', '')
+              s = re.sub(r'[^0-9.\-]', '', s)
+              try:
+                  return float(s)
+              except ValueError:
+                  return None
+
+          def main(status_code: int, body: str) -> dict:
+              if status_code >= 400:
+                  return {'report': f'Apify returned HTTP {status_code}: {body[:300]}', 'excel': ''}
+              try:
+                  rows = json.loads(body)
+              except Exception:
+                  return {'report': 'Could not read the Apify response.', 'excel': ''}
+              errors = [r for r in rows if r.get('error')]
+              rows = [r for r in rows if not r.get('error') and r.get('cells')]
+              tables, excel = {}, []
+              for r in rows:
+                  tables.setdefault((r.get('file_name'), r.get('page'), r.get('table')), []).append(r)
+                  if r.get('excel_url') and r['excel_url'] not in excel:
+                      excel.append(r['excel_url'])
+              out, findings = [], []
+              for (fname, page, tno), trs in list(tables.items())[:15]:
+                  cols = trs[0].get('columns') or [f'col{i+1}' for i in range(len(trs[0]['cells']))]
+                  out.append(f'### {fname} - page {page}, table {tno}')
+                  out.append('| ' + ' | '.join(map(str, cols)) + ' |')
+                  out.append('|' + '---|' * len(cols))
+                  for r in trs[:60]:
+                      out.append('| ' + ' | '.join(str(c).replace('|', '/') for c in r['cells']) + ' |')
+                  low = [str(c).lower() for c in cols]
+                  ai = next((i for i, c in enumerate(low) if c in ('amount', 'beløp', 'betrag', 'montant', 'importe')), None)
+                  bi = next((i for i, c in enumerate(low) if 'balance' in c or 'saldo' in c), None)
+                  if ai is not None and bi is not None:
+                      prev = None
+                      for r in trs:
+                          a, b = num(r['cells'][ai]) if ai < len(r['cells']) else None, num(r['cells'][bi]) if bi < len(r['cells']) else None
+                          if prev is not None and a is not None and b is not None and abs(prev + a - b) > 0.011:
+                              findings.append(f'Balance mismatch in {fname} p{page} row {r.get("row")}: {prev:.2f} + {a:.2f} = {prev + a:.2f}, statement says {b:.2f}')
+                          if b is not None:
+                              prev = b
+                  seen = {}
+                  for r in trs:
+                      key = tuple(str(c).strip().lower() for c in r['cells'])
+                      if key in seen and any(key):
+                          findings.append(f'Possible duplicate line in {fname} p{page}: rows {seen[key]} and {r.get("row")} are identical')
+                      seen.setdefault(key, r.get('row'))
+                  if ai is not None:
+                      amts = sorted(((num(r['cells'][ai]), r) for r in trs if ai < len(r['cells']) and num(r['cells'][ai]) is not None), key=lambda x: x[0])
+                      if amts:
+                          findings.append(f'{fname}: largest outgoing {amts[0][0]:.2f} ({" ".join(map(str, amts[0][1]["cells"][:2]))}), largest incoming {amts[-1][0]:.2f}')
+              if not rows:
+                  out.append('No tables found. Scanned PDFs need OCR first (rowfeed/image-to-text-ocr).')
+              for e in errors[:5]:
+                  findings.append(f'Could not read {e.get("source") or e.get("file_name")}: {e.get("errorMessage")}')
+              report = '\n'.join(out) + '\n\n## Automatic checks\n' + ('\n'.join('- ' + f for f in findings) if findings else '- No balance errors or duplicates found.')
+              return {'report': report[:60000], 'excel': '\n'.join(excel)}
+        variables:
+        - {variable: status_code, value_selector: [http, status_code]}
+        - {variable: body, value_selector: [http, body]}
+        outputs:
+          report: {type: string, children: null}
+          excel: {type: string, children: null}
+    - id: llm
+      type: custom
+      position: {x: 1230, y: 250}
+      data:
+        type: llm
+        title: Review with AI
+        desc: Short review of what the checks found
+        model:
+          provider: langgenius/openai/openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.2
+        prompt_template:
+        - role: system
+          text: You are a careful bookkeeper. Use only the tables and check results given. Never invent numbers. Be brief.
+        - role: user
+          text: |
+            Extracted tables and automatic checks:
+
+            {{#code_out.report#}}
+
+            Write:
+            1. A 2-3 sentence summary (period, opening/closing balance or invoice total if visible).
+            2. Issues to look at: balance mismatches, duplicates, unusual amounts. Say "none found" if there are none.
+            3. Up to 3 follow-up actions for the finance team.
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+    - id: end
+      type: custom
+      position: {x: 1530, y: 250}
+      data:
+        type: end
+        title: End
+        outputs:
+        - {variable: review, value_selector: [llm, text]}
+        - {variable: tables_and_checks, value_selector: [code_out, report]}
+        - {variable: excel_download, value_selector: [code_out, excel]}
+    viewport: {x: 0, y: 0, zoom: 0.8}
