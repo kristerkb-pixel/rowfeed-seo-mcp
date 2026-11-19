@@ -1,0 +1,232 @@
+app:
+  description: Paste up to 50 keywords and get Google search volume, CPC and competition for each, plus an AI-written brief that ranks the best low-competition opportunities and suggests content for them. Data comes from the Keyword Search Volume Actor on Apify (pay per result, built by Rowfeed, the template author).
+  icon: "\U0001F50E"
+  icon_background: '#E4FBCC'
+  mode: workflow
+  name: Keyword Opportunity Brief (Google search volume + AI)
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: Your Apify API token (Apify Console > Settings > API & Integrations). Free plan works; you pay only per keyword checked.
+    id: 6c1f2c3e-1d2a-4b9e-9d0a-1a2b3c4d5e01
+    name: APIFY_TOKEN
+    value: ''
+    value_type: secret
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - id: start-code_in
+      source: start
+      sourceHandle: source
+      target: code_in
+      targetHandle: target
+      type: custom
+      data: {sourceType: start, targetType: code, isInIteration: false}
+    - id: code_in-http
+      source: code_in
+      sourceHandle: source
+      target: http
+      targetHandle: target
+      type: custom
+      data: {sourceType: code, targetType: http-request, isInIteration: false}
+    - id: http-code_out
+      source: http
+      sourceHandle: source
+      target: code_out
+      targetHandle: target
+      type: custom
+      data: {sourceType: http-request, targetType: code, isInIteration: false}
+    - id: code_out-llm
+      source: code_out
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      data: {sourceType: code, targetType: llm, isInIteration: false}
+    - id: llm-end
+      source: llm
+      sourceHandle: source
+      target: end
+      targetHandle: target
+      type: custom
+      data: {sourceType: llm, targetType: end, isInIteration: false}
+    nodes:
+    - id: start
+      type: custom
+      position: {x: 30, y: 250}
+      data:
+        type: start
+        title: Start
+        desc: Keywords, one per line or comma separated
+        variables:
+        - variable: keywords
+          label: Keywords (one per line, max 50)
+          type: paragraph
+          required: true
+          max_length: 5000
+          options: []
+        - variable: location
+          label: Country (e.g. United States, United Kingdom, Norway)
+          type: text-input
+          required: false
+          max_length: 64
+          options: []
+    - id: code_in
+      type: custom
+      position: {x: 330, y: 250}
+      data:
+        type: code
+        title: Build Apify input
+        desc: Cleans the keyword list and builds the request body
+        code_language: python3
+        code: |
+          import json
+
+          def main(keywords: str, location: str) -> dict:
+              parts = [k.strip() for line in (keywords or '').splitlines() for k in line.split(',')]
+              seen, clean = set(), []
+              for k in parts:
+                  if k and k.lower() not in seen:
+                      seen.add(k.lower())
+                      clean.append(k)
+              body = {"mode": "volume", "keywords": clean[:50],
+                      "location": (location or '').strip() or "United States", "language": "English"}
+              return {"body": json.dumps(body), "count": len(clean[:50])}
+        variables:
+        - variable: keywords
+          value_selector: [start, keywords]
+        - variable: location
+          value_selector: [start, location]
+        outputs:
+          body: {type: string, children: null}
+          count: {type: number, children: null}
+    - id: http
+      type: custom
+      position: {x: 630, y: 250}
+      data:
+        type: http-request
+        title: Get search volume (Apify)
+        desc: Runs rowfeed/keyword-search-volume and returns one row per keyword
+        method: post
+        url: https://api.apify.com/v2/acts/rowfeed~keyword-search-volume/run-sync-get-dataset-items?clean=1&maxTotalChargeUsd=2
+        authorization:
+          type: api-key
+          config:
+            type: bearer
+            api_key: '{{#env.APIFY_TOKEN#}}'
+        headers: 'Content-Type:application/json'
+        params: ''
+        body:
+          type: json
+          data:
+          - type: text
+            value: '{{#code_in.body#}}'
+        timeout:
+          max_connect_timeout: 30
+          max_read_timeout: 300
+          max_write_timeout: 30
+        retry_config:
+          retry_enabled: true
+          max_retries: 1
+          retry_interval: 5000
+    - id: code_out
+      type: custom
+      position: {x: 930, y: 250}
+      data:
+        type: code
+        title: Score keywords
+        desc: Opportunity = volume / (1 + competition index); builds a table
+        code_language: python3
+        code: |
+          import json
+
+          def main(status_code: int, body: str) -> dict:
+              if status_code >= 400:
+                  return {"table": f"Apify returned HTTP {status_code}: {body[:300]}", "ok": 0}
+              try:
+                  rows = json.loads(body)
+              except Exception:
+                  return {"table": "Could not read the Apify response.", "ok": 0}
+              good = [r for r in rows if isinstance(r, dict) and r.get("search_volume") is not None]
+              for r in good:
+                  r["opportunity"] = round((r.get("search_volume") or 0) / (1 + (r.get("competition_index") or 0)), 1)
+              good.sort(key=lambda r: r["opportunity"], reverse=True)
+              lines = ["| Keyword | Volume | CPC USD | Competition | Comp. index | 3-month trend % | Opportunity |",
+                       "|---|---|---|---|---|---|---|"]
+              for r in good:
+                  lines.append(f"| {r.get('keyword')} | {r.get('search_volume')} | {r.get('cpc_usd')} | {r.get('competition')} | "
+                               f"{r.get('competition_index')} | {r.get('trend_3m_pct')} | {r['opportunity']} |")
+              missing = [r.get("keyword") for r in rows if isinstance(r, dict) and r.get("search_volume") is None]
+              if missing:
+                  lines.append("")
+                  lines.append("No Google data for: " + ", ".join(str(m) for m in missing))
+              return {"table": "\n".join(lines), "ok": len(good)}
+        variables:
+        - variable: status_code
+          value_selector: [http, status_code]
+        - variable: body
+          value_selector: [http, body]
+        outputs:
+          table: {type: string, children: null}
+          ok: {type: number, children: null}
+    - id: llm
+      type: custom
+      position: {x: 1230, y: 250}
+      data:
+        type: llm
+        title: Write opportunity brief
+        desc: Picks the best keywords and suggests content
+        model:
+          provider: langgenius/openai/openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.3
+        prompt_template:
+        - role: system
+          text: You are an SEO strategist. Use only the numbers in the table. Be concise and practical.
+        - role: user
+          text: |
+            Keyword data (Google Ads search volume, CPC, competition; opportunity = volume / (1 + competition index)):
+
+            {{#code_out.table#}}
+
+            Write a short brief:
+            1. Top 5 opportunities and why (volume vs competition, trend).
+            2. Keywords to skip and why.
+            3. For each top keyword: a suggested page title and the search intent.
+            If the table shows an error, explain it and stop.
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+    - id: end
+      type: custom
+      position: {x: 1530, y: 250}
+      data:
+        type: end
+        title: End
+        outputs:
+        - variable: brief
+          value_selector: [llm, text]
+        - variable: keyword_table
+          value_selector: [code_out, table]
+    viewport: {x: 0, y: 0, zoom: 0.8}
